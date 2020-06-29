@@ -47,20 +47,25 @@ namespace Oxide.Plugins
 		#region Custom Methods
 		void FindTargets(PatrolHelicopterAI heli)
 		{
-			List<NPCPlayerApex> nearbyScientist = new List<NPCPlayerApex>();
+			if(config.shootNPC)
+			{
+				List<NPCPlayerApex> nearbyScientist = new List<NPCPlayerApex>();
+
+				Vis.Entities(heli.transform.position, 100, nearbyScientist);
+
+				foreach (var player in nearbyScientist)
+				{
+					if (player is Scientist && !config.shootNPC) continue;
+					if (player is NPCMurderer && !config.shootZombies) continue;
+					if (player is NPCMurderer && !permission.UserHasPermission(player.UserIDString, config.perm)) continue;
+
+					heli._targetList.Add(new PatrolHelicopterAI.targetinfo(player, player));
+				}
+			}
 			//List<BaseAnimalNPC> nearbyAnimals = new List<BaseAnimalNPC>();
 
 			//Vis.Entities(heli.transform.position, 100, nearbyAnimals);
-			Vis.Entities(heli.transform.position, 100, nearbyScientist);
 
-			foreach (var player in nearbyScientist)
-			{
-				if (player is Scientist && !config.shootNPC) continue;
-				if (player is NPCMurderer && !config.shootZombies) continue;
-				if (player is NPCMurderer && !permission.UserHasPermission(player.UserIDString, config.perm)) continue;
-
-				heli._targetList.Add(new PatrolHelicopterAI.targetinfo(player, player));
-			}
 			//foreach (var animal in nearbyAnimals)
 			//{
 			//	if (!config.shootAnimals) continue;
