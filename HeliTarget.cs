@@ -47,9 +47,10 @@ namespace Oxide.Plugins
 		#region Custom Methods
 		void FindTargets(PatrolHelicopterAI heli)
 		{
-			if(config.shootNPC)
+			if (config.shootNPC)
 			{
 				List<NPCPlayerApex> nearbyScientist = new List<NPCPlayerApex>();
+
 
 				Vis.Entities(heli.transform.position, 100, nearbyScientist);
 
@@ -61,16 +62,29 @@ namespace Oxide.Plugins
 
 					heli._targetList.Add(new PatrolHelicopterAI.targetinfo(player, player));
 				}
+				heli.timeBetweenRockets = config.timeBetweenRockets;
+				for(int i = 1; i < config.rocketsToFire; i++)
+				{
+					heli.FireRocket();
+				}
 			}
-			//List<BaseAnimalNPC> nearbyAnimals = new List<BaseAnimalNPC>();
 
-			//Vis.Entities(heli.transform.position, 100, nearbyAnimals);
-
-			//foreach (var animal in nearbyAnimals)
+			//if (config.shootAnimals)
 			//{
-			//	if (!config.shootAnimals) continue;
-			//	heli._targetList.Add(new PatrolHelicopterAI.targetinfo(animal, null));
+			//	List<BaseAnimalNPC> nearbyAnimals = new List<BaseAnimalNPC>();
+
+
+			//	Vis.Entities(heli.transform.position, 100, nearbyAnimals);
+
+			//	foreach (var animal in nearbyAnimals)
+			//	{
+			//		if (!config.shootAnimals) continue;
+			//		heli._targetList.Add(new PatrolHelicopterAI.targetinfo(animal as BaseEntity));
+			//	}
 			//}
+			
+
+
 		}
 
 		#endregion
@@ -91,6 +105,12 @@ namespace Oxide.Plugins
 
 			[JsonProperty("Shoot Animals")]
 			public bool shootAnimals { get; set; }
+
+			[JsonProperty("Time(seconds) between rockets")]
+			public float timeBetweenRockets { get; set; }
+
+			[JsonProperty("Rockets to fire")]
+			public int rocketsToFire { get; set; }
 		}
 
 		private PluginConfig GetDefaultConfig()
@@ -100,7 +120,9 @@ namespace Oxide.Plugins
 				perm = "helitarget.ignore",
 				shootNPC = true,
 				shootAnimals = true,
-				shootZombies = true
+				shootZombies = true,
+				timeBetweenRockets = 15,
+				rocketsToFire = 5,
 			};
 		}
 
