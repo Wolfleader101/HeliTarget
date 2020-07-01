@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace Oxide.Plugins
 {
-	[Info("HeliTarget", "Wolfleader101", "1.0.0")]
+	[Info("HeliTarget", "Wolfleader101", "1.1.0")]
 	[Description("stop attack helicopter from targetting players")]
 	class HeliTarget : RustPlugin
 	{
@@ -52,7 +52,7 @@ namespace Oxide.Plugins
 				List<NPCPlayerApex> nearbyScientist = new List<NPCPlayerApex>();
 
 
-				Vis.Entities(heli.transform.position, 100, nearbyScientist);
+				Vis.Entities(heli.transform.position, config.targetRadius, nearbyScientist);
 
 				foreach (var player in nearbyScientist)
 				{
@@ -62,12 +62,19 @@ namespace Oxide.Plugins
 
 					heli._targetList.Add(new PatrolHelicopterAI.targetinfo(player, player));
 				}
+			}
+			var useNapalm = heli.CanUseNapalm();
+			
+			if (heli.IsTargeting())
+			{
+				useNapalm = true;
 				heli.timeBetweenRockets = config.timeBetweenRockets;
-				for(int i = 1; i < config.rocketsToFire; i++)
+				for (int i = 1; i < config.rocketsToFire; i++)
 				{
 					heli.FireRocket();
 				}
 			}
+	
 
 			//if (config.shootAnimals)
 			//{
@@ -79,13 +86,16 @@ namespace Oxide.Plugins
 			//	foreach (var animal in nearbyAnimals)
 			//	{
 			//		if (!config.shootAnimals) continue;
-			//		heli._targetList.Add(new PatrolHelicopterAI.targetinfo(animal as BaseEntity));
+			//		heli.SetAimTarget
+			//PatrolHelicopterAI.leftGun.SetTarget
+			//PatrolHelicopterAI.rightGun.SetTarget
 			//	}
 			//}
-			
+
 
 
 		}
+
 
 		#endregion
 
@@ -111,6 +121,9 @@ namespace Oxide.Plugins
 
 			[JsonProperty("Rockets to fire")]
 			public int rocketsToFire { get; set; }
+
+			[JsonProperty("Heli Target Radius")]
+			public int targetRadius { get; set; }
 		}
 
 		private PluginConfig GetDefaultConfig()
@@ -123,6 +136,7 @@ namespace Oxide.Plugins
 				shootZombies = true,
 				timeBetweenRockets = 15,
 				rocketsToFire = 5,
+				targetRadius = 100,
 			};
 		}
 
