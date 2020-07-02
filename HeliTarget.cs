@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace Oxide.Plugins
 {
-	[Info("HeliTarget", "Wolfleader101", "1.1.0")]
+	[Info("HeliTarget", "Wolfleader101", "1.1.1")]
 	[Description("stop attack helicopter from targetting players")]
 	class HeliTarget : RustPlugin
 	{
@@ -63,10 +63,11 @@ namespace Oxide.Plugins
 					heli._targetList.Add(new PatrolHelicopterAI.targetinfo(player, player));
 				}
 			}
-			var useNapalm = heli.CanUseNapalm();
 			
-			if (heli.IsTargeting())
+			
+			if (heli._targetList.Any())
 			{
+				var useNapalm = heli.CanUseNapalm();
 				useNapalm = true;
 				heli.timeBetweenRockets = config.timeBetweenRockets;
 				for (int i = 1; i < config.rocketsToFire; i++)
