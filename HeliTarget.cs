@@ -47,35 +47,33 @@ namespace Oxide.Plugins
 		#region Custom Methods
 		void FindTargets(PatrolHelicopterAI heli)
 		{
-			if (config.shootNPC)
+			List<BasePlayer> nearbyNPCPlayers = new List<BasePlayer>();
+
+
+			Vis.Entities(heli.transform.position, config.targetRadius, nearbyNPCPlayers);
+
+			foreach (var player in nearbyNPCPlayers)
 			{
-				List<NPCPlayerApex> nearbyScientist = new List<NPCPlayerApex>();
+				if (player.userID.IsSteamId() && permission.UserHasPermission(player.UserIDString, config.perm)) return;
 
+				if (player is Scientist && !config.shootScientist) continue;
+				if (player is HTNPlayer && !config.shootZombies) continue;
 
-				Vis.Entities(heli.transform.position, config.targetRadius, nearbyScientist);
-
-				foreach (var player in nearbyScientist)
-				{
-					if (player is Scientist && !config.shootNPC) continue;
-					if (player is NPCMurderer && !config.shootZombies) continue;
-					if (player is NPCMurderer && !permission.UserHasPermission(player.UserIDString, config.perm)) continue;
-
-					heli._targetList.Add(new PatrolHelicopterAI.targetinfo(player, player));
-				}
+				heli._targetList.Add(new PatrolHelicopterAI.targetinfo(player, player));
 			}
-			
-			
+
 			if (heli._targetList.Any())
 			{
-				var useNapalm = heli.CanUseNapalm();
-				useNapalm = true;
+				//var useNapalm = heli.CanUseNapalm(); // doesnt work
+				//useNapalm = true;                    // doesnt work
 				heli.timeBetweenRockets = config.timeBetweenRockets;
 				for (int i = 1; i < config.rocketsToFire; i++)
 				{
+					heli.SetAimTarget(heli._targetList[0].ply.GetNetworkPosition(), false); // experimental
 					heli.FireRocket();
 				}
 			}
-	
+
 
 			//if (config.shootAnimals)
 			//{
@@ -108,8 +106,8 @@ namespace Oxide.Plugins
 			[JsonProperty("Permission")]
 			public string perm { get; set; }
 
-			[JsonProperty("Shoot NPCs")]
-			public bool shootNPC { get; set; }
+			[JsonProperty("Shoot Scientists")]
+			public bool shootScientist { get; set; }
 
 			[JsonProperty("Shoot Zombies")]
 			public bool shootZombies { get; set; }
@@ -132,7 +130,7 @@ namespace Oxide.Plugins
 			return new PluginConfig
 			{
 				perm = "helitarget.ignore",
-				shootNPC = true,
+				shootScientist = true,
 				shootAnimals = true,
 				shootZombies = true,
 				timeBetweenRockets = 15,
