@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace Oxide.Plugins
 {
-	[Info("HeliTarget", "Wolfleader101", "1.1.1")]
+	[Info("HeliTarget", "Wolfleader101", "1.2.2")]
 	[Description("stop attack helicopter from targetting players")]
 	class HeliTarget : RustPlugin
 	{
@@ -56,10 +56,10 @@ namespace Oxide.Plugins
 			{
 				if (player.userID.IsSteamId() && permission.UserHasPermission(player.UserIDString, config.perm)) return;
 
-				if (player is Scientist && !config.shootScientist) continue;
-				if (player is HTNPlayer && !config.shootZombies) continue;
-
-				heli._targetList.Add(new PatrolHelicopterAI.targetinfo(player, player));
+				if ((player is Scientist && !config.shootScientist) || (player is HTNPlayer && !config.shootZombies))
+				{
+					heli._targetList.Add(new PatrolHelicopterAI.targetinfo(player, player));
+				}
 			}
 
 			if (heli._targetList.Any())
